@@ -1,0 +1,406 @@
+@model GesBanqueAspNet.ViewModels.CompteDetailViewModel
+
+@{
+    ViewData["Title"] = "Détails du compte";
+    var currentType = Model.Filter?.Type?.ToLower() ?? "all";
+}
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border-radius: 10px 10px 0 0 !important;
+        border: none !important;
+    }
+
+    .card-header h5 {
+        color: white !important;
+        margin: 0 !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #5568d3 0%, #6a3fa0 100%);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .badge {
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+
+    .badge.bg-success {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important;
+    }
+
+    .badge.bg-danger {
+        background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%) !important;
+    }
+
+    .badge.bg-info {
+        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%) !important;
+    }
+
+    .nav-pills .nav-link {
+        color: #667eea;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .nav-pills .nav-link:hover {
+        background: #f0f4ff;
+        color: #764ba2;
+    }
+
+    .nav-pills .nav-link.active {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: #f0f4ff;
+    }
+
+    .table thead th {
+        color: #667eea;
+        font-weight: 600;
+        border: none;
+        border-bottom: 2px solid #e0e7ff !important;
+    }
+
+    .table tbody tr:hover {
+        background: #f9f5ff;
+    }
+
+    .text-success {
+        color: #10b981 !important;
+    }
+
+    .text-danger {
+        color: #ef4444 !important;
+    }
+
+    .fw-semibold {
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .alert-info {
+        background: #dbeafe;
+        border: 1px solid #3b82f6;
+        color: #1e40af;
+        border-radius: 8px;
+    }
+
+    .alert-warning {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        color: #92400e;
+        border-radius: 8px;
+    }
+
+    h2 {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .form-label {
+        color: #667eea;
+        font-weight: 500;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .test-accounts-hint {
+        background: #f0f4ff;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+    }
+
+    .test-accounts-hint strong {
+        color: #667eea;
+    }
+
+    .test-accounts-hint p {
+        margin: 8px 0;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .test-accounts-hint .account-number {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 5px;
+        margin: 3px 3px 3px 0;
+        font-family: monospace;
+        font-weight: 600;
+    }
+</style>
+
+<h2 class="mb-4">Détails du compte</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Details" method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label asp-for="Search.NumeroCompte" class="form-label">N° de compte</label>
+                <input asp-for="Search.NumeroCompte"
+                       name="numero"
+                       class="form-control"
+                       placeholder="Ex : C00123456" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 mt-4">
+                    OK
+                </button>
+            </div>
+            <div class="col-md-6">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="text-danger">
+                        @Html.ValidationSummary(false)
+                    </div>
+                }
+            </div>
+        </form>
+
+        @if (Model.Compte == null)
+        {
+            <div class="test-accounts-hint">
+                <p><strong>📌 Comptes de test disponibles :</strong></p>
+                <div>
+                    <span class="account-number">SN001020240001</span>
+                    <span class="account-number">SN001020240002</span>
+                    <span class="account-number">SN001020240003</span>
+                    <span class="account-number">SN001020240004</span>
+                    <span class="account-number">SN001020240005</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.Compte == null)
+{
+    <div class="alert alert-info">
+        Saisissez un numéro de compte puis cliquez sur <strong>OK</strong> pour afficher les informations.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Informations du compte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">N° Compte :</div>
+                        <div>@Model.Compte.Numero</div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">Titulaire :</div>
+                        <div>@Model.Compte.Titulaire</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">Type :</div>
+                        <span class="badge bg-info text-dark rounded-pill">
+                            @Model.Compte.Type
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">Solde actuel :</div>
+                        <div class="text-success fw-bold">
+                            @Model.Compte.SoldeActuel.ToString("N0") FCFA
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">Date de création :</div>
+                        <div>@Model.Compte.DateCreation.ToString("dd/MM/yyyy")</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="fw-semibold text-secondary">Statut :</div>
+                        @if (Model.Compte.Statut == GesBanqueAspNet.Models.StatutCompte.Bloque)
+                        {
+                            <span class="badge bg-warning text-dark rounded-pill">
+                                Bloqué (@Model.Compte.DureeBlocageJours j)
+                            </span>
+                        }
+                        else if (Model.Compte.Statut == GesBanqueAspNet.Models.StatutCompte.Actif)
+                        {
+                            <span class="badge bg-success rounded-pill">Actif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary rounded-pill">Fermé</span>
+                        }
+                    </div>
+
+                    @if (Model.Compte.DateDeblocage != null)
+                    {
+                        <div class="mb-2">
+                            <div class="fw-semibold text-secondary">Date de déblocage :</div>
+                            <div>@Model.Compte.DateDeblocage.Value.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <span class="fw-semibold text-secondary">Total des dépôts :</span>
+                        <span class="text-success fw-semibold">
+                            @Model.TotalDepots.ToString("N0") FCFA
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                        <span class="fw-semibold text-secondary">Total des retraits :</span>
+                        <span class="text-danger fw-semibold">
+                            @Model.TotalRetraits.ToString("N0") FCFA
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                        <span class="fw-semibold text-secondary">Nombre de transactions :</span>
+                        <span>@Model.NombreTransactions</span>
+                    </div>
+
+                    <div class="mb-2">
+                        <span class="fw-semibold text-secondary">Dernière transaction :</span>
+                        <span>
+                            @(Model.DerniereTransaction?.ToString("dd/MM/yyyy") ?? "-")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Historique des transactions</h5>
+
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <a class="nav-link @(currentType == "all" ? "active" : "")"
+                               asp-action="Details"
+                               asp-route-numero="@Model.Compte.Numero"
+                               asp-route-type="all"
+                               asp-route-page="1">
+                                Tous
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentType == "depot" ? "active" : "")"
+                               asp-action="Details"
+                               asp-route-numero="@Model.Compte.Numero"
+                               asp-route-type="depot"
+                               asp-route-page="1">
+                                Dépôts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(currentType == "retrait" ? "active" : "")"
+                               asp-action="Details"
+                               asp-route-numero="@Model.Compte.Numero"
+                               asp-route-type="retrait"
+                               asp-route-page="1">
+                                Retraits
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    @if (Model.Transactions == null || !Model.Transactions.Any())
+                    {
+                        <div class="alert alert-warning mb-0">
+                            Aucune transaction trouvée pour ce filtre.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Montant</th>
+                                        <th>Solde après</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var t in Model.Transactions)
+                                    {
+                                        var isDepot = t.Type == GesBanqueAspNet.Models.TypeTransaction.Depot;
+                                        <tr>
+                                            <td>@t.Reference</td>
+                                            <td>@t.DateOperation.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                @if (isDepot)
+                                                {
+                                                    <span class="badge bg-success rounded-pill">Dépôt</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger rounded-pill">Retrait</span>
+                                                }
+                                            </td>
+                                            <td class="@(isDepot ? "text-success" : "text-danger")">
+                                                @((isDepot ? "+" : "-") + t.Montant.ToString("N0") + " FCFA")
+                                            </td>
+                                            <td>@t.SoldeApres.ToString("N0") FCFA</td>
+                                            <td>@t.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-3">
+                            @await Html.PartialAsync("~/Views/Shared/_pagination.cshtml", Model.Pagination)
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
